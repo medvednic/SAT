@@ -2,9 +2,9 @@ import json
 import pika
 
 from daemonize import Daemonize
+from pymongo import MongoClient
 from textblob import TextBlob
 
-from tweet import Tweet
 from util import clean_tweet
 
 
@@ -22,9 +22,16 @@ def callback(ch, method, props, body):
     # print('message %r' % body.decode())
     tweet_json = json.loads(body, encoding='utf-8')
     sentiment = determine_sentiment(tweet_json['text'])
-    tweet = Tweet(tweet_json['id'], tweet_json['text'], tweet_json['created_at'], sentiment)
-    print(tweet.text)
-    print(tweet.sentiment)
+    tweet = {
+        'id': tweet_json['id'],
+        'text': tweet_json['text'],
+        'created_at': tweet_json['created_at'],
+        'sentiment': sentiment
+    }
+
+    print(tweet['text'])
+    print(tweet['sentiment'])
+    print(collection.insert_one(tweet).inserted_id)
 
 
 def main():
@@ -36,6 +43,9 @@ def main():
     channel.start_consuming()
 
 
+mongo_client = MongoClient('localhost', 27017)
+db = mongo_client.sat_db
+collection = db.tweet_collection
 pid_file = '/tmp/kyc-consumer.pid'
 daemon = Daemonize(app="kyc-consumer", pid=pid_file, action=main())
 daemon.start()
