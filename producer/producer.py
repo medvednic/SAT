@@ -48,6 +48,7 @@ def main():
                                  listener=stream_listener)
 
     tweet_stream.filter(track=keywords['keywords'],
+                        languages=['en'],
                         async=False)
 
 
