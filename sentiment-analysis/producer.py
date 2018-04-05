@@ -1,9 +1,9 @@
 import logging
 
-import pika
 import tweepy
 from daemonize import Daemonize
 
+from mq_connector import mq_chanel_connect
 from stream_listener import SatStreamListener
 from util import read_json
 
@@ -14,13 +14,6 @@ fh = logging.FileHandler("sat-producer.log", "w")
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 keep_fds = [fh.stream.fileno()]
-
-
-def mq_chanel_connect(host, queue_name):
-    broker_connection = pika.BlockingConnection(pika.ConnectionParameters(host))
-    channel = broker_connection.channel()
-    channel.queue_declare(queue=queue_name)
-    return channel
 
 
 def twitter_api_init(credentials):

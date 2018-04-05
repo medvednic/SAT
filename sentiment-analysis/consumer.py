@@ -1,11 +1,13 @@
 import json
-import pika
 
 from daemonize import Daemonize
 from pymongo import MongoClient
 from textblob import TextBlob
 
+from mq_connector import mq_chanel_connect
 from util import clean_tweet
+
+collection = None
 
 
 def determine_sentiment(text):
@@ -18,7 +20,7 @@ def determine_sentiment(text):
         return 'negative'
 
 
-def callback(ch, method, props, body):
+def mq_consume_callback(ch, method, props, body):
     # print('message %r' % body.decode())
     tweet_json = json.loads(body, encoding='utf-8')
     sentiment = determine_sentiment(tweet_json['text'])
@@ -29,23 +31,25 @@ def callback(ch, method, props, body):
         'sentiment': sentiment
     }
 
-    print(tweet['text'])
-    print(tweet['sentiment'])
-    print(collection.insert_one(tweet).inserted_id)
+    if None is not collection:
+        print(collection.insert_one(tweet).inserted_id)
+
+
+def db_connect():
+    global collection
+    mongo_client = MongoClient('localhost', 27017)
+    db = mongo_client.sat_db
+    collection = db.tweet_collection
 
 
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
-    channel.queue_declare(queue='tweets')
+    db_connect()
+    mq_channel = mq_chanel_connect('localhost', 'tweets')
 
-    channel.basic_consume(callback, queue='tweets', no_ack=True)
-    channel.start_consuming()
+    mq_channel.basic_consume(mq_consume_callback, queue='tweets', no_ack=True)
+    mq_channel.start_consuming()
 
 
-mongo_client = MongoClient('localhost', 27017)
-db = mongo_client.sat_db
-collection = db.tweet_collection
 pid_file = '/tmp/kyc-consumer.pid'
 daemon = Daemonize(app="kyc-consumer", pid=pid_file, action=main())
 daemon.start()
