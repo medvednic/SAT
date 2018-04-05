@@ -4,8 +4,8 @@ import pika
 import tweepy
 from daemonize import Daemonize
 
-import file_reader
-from listener import SatStreamListener
+from stream_listener import SatStreamListener
+from util import read_json
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -35,25 +35,19 @@ def twitter_api_init(credentials):
 
 def main():
     logging.info('Session start')
-    credentials = file_reader.read_json('tweeter-api-credentials.json')
-    keywords = file_reader.read_json('person-config.json')
+    credentials = read_json('tweeter-api-credentials.json')
+    keywords = read_json('person-config.json')
 
     twitter_api = twitter_api_init(credentials)
     mq_channel = mq_chanel_connect('localhost', 'tweets')
 
-    stream_listener = SatStreamListener(logger=logger,
-                                        mq_channel=mq_channel)
+    stream_listener = SatStreamListener(logger=logger, mq_channel=mq_channel)
 
-    tweet_stream = tweepy.Stream(auth=twitter_api.auth,
-                                 listener=stream_listener)
+    tweet_stream = tweepy.Stream(auth=twitter_api.auth, listener=stream_listener)
 
-    tweet_stream.filter(track=keywords['keywords'],
-                        languages=['en'],
-                        async=False)
+    tweet_stream.filter(track=keywords['keywords'], languages=['en'], async=False)
 
 
 pid_file = '/tmp/kyc-producer.pid'
-daemon = Daemonize(app="kyc-producer",
-                   pid=pid_file, action=main(),
-                   keep_fds=keep_fds)
+daemon = Daemonize(app="kyc-producer", pid=pid_file, action=main(), keep_fds=keep_fds)
 daemon.start()
