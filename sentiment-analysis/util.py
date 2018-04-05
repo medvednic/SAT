@@ -1,6 +1,8 @@
 import json
 import re
 
+import time
+
 
 def read_json(file_name):
     with open('config/' + file_name, encoding="utf-8") as f:
@@ -13,3 +15,7 @@ def clean_tweet(tweet):
     using simple regex statements.
     """
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])| (\w +:\ / \ / \S +)", " ", tweet).split())
+
+
+def twitter_time_to_epoch(created_at):
+    return time.mktime(time.strptime(created_at, '%a %b %d %H:%M:%S +0000 %Y'))
