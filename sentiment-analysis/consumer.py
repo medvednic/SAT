@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from daemonize import Daemonize
@@ -5,7 +6,7 @@ from pymongo import MongoClient
 from textblob import TextBlob
 
 from mq_connector import mq_chanel_connect
-from util import clean_tweet
+from util import clean_tweet, twitter_time_to_epoch
 
 collection = None
 
@@ -24,10 +25,11 @@ def mq_consume_callback(ch, method, props, body):
     # print('message %r' % body.decode())
     tweet_json = json.loads(body, encoding='utf-8')
     sentiment = determine_sentiment(tweet_json['text'])
+    ts = twitter_time_to_epoch(tweet_json['created_at'])
     tweet = {
         'id': tweet_json['id'],
         'text': tweet_json['text'],
-        'created_at': tweet_json['created_at'],
+        'created_at': datetime.datetime.fromtimestamp(ts, None),
         'sentiment': sentiment
     }
 
