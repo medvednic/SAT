@@ -27,7 +27,7 @@ Twitter API key and token as ```twiter-api-credentials.json``` file in ```config
   },
   "access-token":{
     "token":"your-access-token",
-    "secret":"your-secret"
+    "secret":"your-token-secret"
   }
 }
 ```
