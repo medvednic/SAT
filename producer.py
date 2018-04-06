@@ -24,7 +24,7 @@ def main():
     mq_channel = get_mq_channel(hosts_config['rabbitmq']['host'], 'tweets')
 
     keywords = read_json('person-config.json')
-    twitter_credentials = read_json('tweeter-api-credentials.json')
+    twitter_credentials = read_json('twitter-api-credentials.json')
     twitter_api = get_twitter_api(twitter_credentials)
 
     stream_listener = SatStreamListener(logger=logger, mq_channel=mq_channel)
