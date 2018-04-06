@@ -4,7 +4,7 @@ import sys
 
 import os
 
-from services import read_json, SatStreamListener, LogProvider
+from services import read_json, get_hosts_config, SatStreamListener, LogProvider
 from services.connectors import *
 
 """
@@ -20,8 +20,8 @@ def main():
     global tweet_stream
     print('SAT Producer started')
     logger.info('SAT Producer started')
-
-    mq_channel = get_mq_channel('localhost', 'tweets')
+    hosts_config = get_hosts_config()
+    mq_channel = get_mq_channel(hosts_config['rabbitmq']['host'], 'tweets')
 
     keywords = read_json('person-config.json')
     twitter_credentials = read_json('tweeter-api-credentials.json')

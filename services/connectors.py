@@ -10,14 +10,15 @@ each function returns instance of a specific connection.
 
 
 def get_mq_channel(host, queue_name):
-    broker_connection = pika.BlockingConnection(pika.ConnectionParameters(host))
+    broker_connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, connection_attempts=15,
+                                                                          retry_delay=10))
     channel = broker_connection.channel()
     channel.queue_declare(queue=queue_name)
     return channel
 
 
 def get_db_collection(host, port, db_name, collection):
-    mongo_client = MongoClient(host, port)
+    mongo_client = MongoClient(host=host, port=port)
     db = mongo_client[db_name]
     return db[collection]
 

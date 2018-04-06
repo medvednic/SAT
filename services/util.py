@@ -22,3 +22,10 @@ def clean_tweet(tweet):
 
 def twitter_time_to_epoch(created_at):
     return time.mktime(time.strptime(created_at, '%a %b %d %H:%M:%S +0000 %Y'))
+
+
+# get hosts config depending on deployment env (docker or local)
+def get_hosts_config():
+    hosts_config = read_json('hosts.json')
+    env = hosts_config['env']
+    return hosts_config[env]

@@ -1,0 +1,25 @@
+{
+  "env":"docker",
+  "docker": {
+    "rabbitmq":{
+      "host":"rabbitmq"
+    },
+    "db": {
+      "host":"mongodb"
+    },
+    "flask": {
+      "host":"0.0.0.0"
+    }
+  },
+  "local": {
+    "rabbitmq":{
+      "host":"localhost"
+    },
+    "db": {
+      "host":"localhost"
+    },
+    "flask": {
+      "host":"localhost"
+    }
+  }
+}

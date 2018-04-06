@@ -2,7 +2,7 @@ import datetime
 
 from flask import Flask, jsonify, request
 
-from services import get_db_collection
+from services import get_db_collection, get_hosts_config
 
 """
 API - flask app, allows performing HTTP requests to get tweets distribution by sentiment over spans of time (H/D/W).
@@ -72,5 +72,6 @@ def tweet_distribution_all():
 
 
 if __name__ == '__main__':
-    collection = get_db_collection('localhost', 27017, 'sat_db', 'tweet_collection')
-    app.run()
+    hosts_config = get_hosts_config()
+    collection = get_db_collection(hosts_config['db']['host'], 27017, 'sat_db', 'tweet_collection')
+    app.run(host=hosts_config['flask']['host'])

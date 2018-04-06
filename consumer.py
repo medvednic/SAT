@@ -7,7 +7,7 @@ import sys
 import os
 from textblob import TextBlob
 
-from services import clean_tweet, twitter_time_to_epoch, LogProvider
+from services import clean_tweet, twitter_time_to_epoch, LogProvider, get_hosts_config
 from services.connectors import *
 
 """
@@ -50,9 +50,10 @@ def main():
     global collection, mq_channel
     logger.info('SAT Consumer started')
     print('SAT Consumer started')
-    collection = get_db_collection('localhost', 27017, 'sat_db', 'tweet_collection')
+    hosts_config = get_hosts_config()
+    collection = get_db_collection(hosts_config['db']['host'], 27017, 'sat_db', 'tweet_collection')
 
-    mq_channel = get_mq_channel('localhost', 'tweets')
+    mq_channel = get_mq_channel(hosts_config['rabbitmq']['host'], 'tweets')
     mq_channel.basic_consume(mq_consume_callback, queue='tweets', no_ack=True)
     mq_channel.start_consuming()
 
